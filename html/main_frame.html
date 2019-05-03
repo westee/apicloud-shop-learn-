@@ -215,89 +215,118 @@
     <div class="push-status" id="pushStatus">上拉显示更多</div>
 </body>
 <script type="text/template" id="template">
-  {{~it:value:index}}
-  {{?value.showType == 0}}
-  <div class="ware ware-0">
-      <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
-          <img class="thumbnail" src="{{=value.thumbnail.url}}">
-          <div class="info">
-              <span class="price">RMB{{=value.price}}</span>
-              <span class="unit">/{{=value.unit}}</span>
-              <span class="origin-price">&nbsp;超市:<del>{{=value.originPrice}}元</del></span>
-          </div>
-          <div class="control">
-              <div class="panel">
-                  <img class="minus" src="../image/minus.png">
-                  <div class="count">0</div>
-              </div>
-              <img class="add" src="../image/add.png">
-          </div>
-      </div>
-  </div>
-  {{??}}
-  <div class="ware ware-1">
-      <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
-          <img class="thumbnail" src="{{=value.thumbnail.url}}">
-          <div class="info">
-              <div class="name">{{=value.name}}</div>
-              <div class="description">{{=value.description}}</div>
-              <div class="price-tag">
-                  <span class="price">￥{{=value.price}}</span>
-                  <span class="unit">/{{=value.unit}}</span>
-              </div>
-              <div class="origin-price">超市:
-                  <del>{{=value.originPrice}}元</del>
-              </div>
-          </div>
-          <div class="control">
-              <div class="panel">
-                  <img class="minus" src="../image/minus.png">
-                  <div class="count">0</div>
-              </div>
-              <img class="add" src="../image/add.png ">
-          </div>
-      </div>
-  </div>
-  {{?}}
-  {{~}}
+    {{~it:value:index}} {{?value.showType == 0}}
+    <div class="ware ware-0">
+        <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
+            <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}"
+            src="../image/default_rect.png">
+            <div class="info">
+                <span class="price">RMB{{=value.price}}</span>
+                <span class="unit">/{{=value.unit}}</span>
+                <span class="origin-price">&nbsp;超市:<del>{{=value.originPrice}}元</del></span>
+            </div>
+            <div class="control">
+                <div class="panel">
+                    <img class="minus" src="../image/minus.png">
+                    <div class="count">0</div>
+                </div>
+                <img class="add" src="../image/add.png">
+            </div>
+        </div>
+    </div>
+    {{??}}
+    <div class="ware ware-1">
+        <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
+            <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}"
+            src="../image/default_square.png">
+            <div class="info">
+                <div class="name">{{=value.name}}</div>
+                <div class="description">{{=value.description}}</div>
+                <div class="price-tag">
+                    <span class="price">￥{{=value.price}}</span>
+                    <span class="unit">/{{=value.unit}}</span>
+                </div>
+                <div class="origin-price">超市:
+                    <del>{{=value.originPrice}}元</del>
+                </div>
+            </div>
+            <div class="control">
+                <div class="panel">
+                    <img class="minus" src="../image/minus.png">
+                    <div class="count">0</div>
+                </div>
+                <img class="add" src="../image/add.png ">
+            </div>
+        </div>
+    </div>
+    {{?}} {{~}}
 </script>
 <script src="../script/doT.min.js" charset="utf-8"></script>
 <script type="text/javascript" src="../script/api.js"></script>
 <script type="text/javascript">
-  var currentCity
-  var wareTypeList
+    var currentCity
+    var wareTypeList
 
     apiready = function() {
         init()
         initEventlistener()
         getWareList()
-        // 获得banner图
+            // 获得banner图
         updateBanner()
     };
 
     // 获得banner图
-    function updateBanner(){
-    var banner = $api.byId('banner')
-    banner.src = wareTypeList[api.pageParam.wareTypeIndex].banner.url
+    function updateBanner() {
+        var banner = $api.byId('banner')
+        api.imageCache({
+            url: wareTypeList[api.pageParam.wareTypeIndex].banner.url
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.status) {
+                    banner.src = ret.url
+                    console.log(banner.src)
+                    console.log(ret.url);
+                }
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+    // 图片加载完成
+    function imgLoad(imgEle) {
+        var urlAttr = $api.attr(imgEle, 'data-url');
+        if (urlAttr) {
+            api.imageCache({
+                url: urlAttr
+            }, function(ret, err) {
+                if (ret) {
+                        imgEle.src = ret.url
+                        $api.attr(imgEle, 'data-url', '');
+                        $api.removeAttr(imgEle, 'onload');
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }
     }
     //
-    function init(){
-      currentCity = $api.getStorage('currentCity');
-      wareTypeList = $api.getStorage('wareTypeList');
+    function init() {
+        currentCity = $api.getStorage('currentCity');
+        wareTypeList = $api.getStorage('wareTypeList');
     }
     //
-    function initEventlistener(){
-      api.addEventListener({
-          name: 'changeCity'
-      }, function(ret, err){
-          if( ret ){
-            // 点击切换城市
-            currentCity = ret.value.city
-            getWareList()
-          }else{
-               alert( JSON.stringify( err ) );
-          }
-      });
+    function initEventlistener() {
+        api.addEventListener({
+            name: 'changeCity'
+        }, function(ret, err) {
+            if (ret) {
+                // 点击切换城市
+                currentCity = ret.value.city
+                getWareList()
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
     }
 
     function fnOpenWareWin() {
@@ -342,15 +371,15 @@
         });
     }
     // 更新商品列表
-    function updateWareList(wareData){
-      var list = $api.byId('list');
-      // 1. 编译模板函数
-      var tempFn = doT.template($api.byId('template').innerHTML);
-      // 2. 多次使用模板函数
-      var resultText = tempFn(wareData);
-      $api.html(list, resultText);
-      // console.log(resultText)
-      // console.log(Array.prototype.slice.call(resultText));
+    function updateWareList(wareData) {
+        var list = $api.byId('list');
+        // 1. 编译模板函数
+        var tempFn = doT.template($api.byId('template').innerHTML);
+        // 2. 多次使用模板函数
+        var resultText = tempFn(wareData);
+        $api.html(list, resultText);
+        // console.log(resultText)
+        // console.log(Array.prototype.slice.call(resultText));
     }
 </script>
 
