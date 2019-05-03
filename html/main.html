@@ -21,6 +21,7 @@
         bottom: 0px;
         width: 90px;
         height: 50px;
+        z-index: 2;
     }
 
     header .left .arrow-down {
@@ -120,55 +121,185 @@
 
 <body>
     <header id="header">
-        <div class="left" tapmode="active">
+       <!-- 点击的时候添加active类 -->
+        <div class="left" tapmode="active" onclick="fnOpenCity()">
             <div id="cityArrow" class="arrow-down"></div>
             <div id="cityText" class="city-text">北京市</div>
         </div>
         <div class="title"></div>
-        <div class="right" tapmode>
+        <div class="right" tapmode onclick="fnOpenLoginWin()">
             <div class="member-center"></div>
         </div>
     </header>
     <nav id="nav">
-        <div class="menu selected" tapmode="active">水果</div>
-        <div class="menu" tapmode="active">食材</div>
-        <div class="menu" tapmode="active">零食</div>
-        <div class="menu" tapmode="active">牛奶</div>
-        <div class="menu" tapmode="active">蔬菜</div>
+        <div class="menu selected" tapmode="active" onclick="fnClickChangeNav(0)">水果</div>
+        <div class="menu" tapmode="active" onclick="fnClickChangeNav(1)">食材</div>
+        <div class="menu" tapmode="active" onclick="fnClickChangeNav(2)">零食</div>
+        <div class="menu" tapmode="active" onclick="fnClickChangeNav(3)">牛奶</div>
+        <div class="menu" tapmode="active" onclick="fnClickChangeNav(4)">蔬菜</div>
     </nav>
 </body>
 <script type="text/javascript" src="../script/api.js"></script>
 <script type="text/javascript">
+var menus, headerH, navH
 apiready = function() {
+  // 监听返回按钮关闭应用
+  initEventListener()
+
+  // 分类栏要距手机屏幕顶部的距离
+  var header = $api.byId('header');
+  var nav = $api.byId('nav');
+  // 把状态栏的高度以padding-top的形式加在header上
+  $api.fixStatusBar(header);
+  headerH = $api.offset(header).h;
+  navH = $api.offset(nav).h
+  menus = $api.domAll(nav, '.menu');
+
+  openFramesGroup()
+};
+
+function openFramesGroup(){
+  var currentCity = $api.getStorage('currentCity');
+  if(!currentCity){
+    fnOpenCity()
+    return
+  }
+
+  // 获取nav所有的menu
+  var frames = []
+  for(var i=0; i<menus.length; i++){
+    frames.push(
+      {
+          name: 'main_frame_' + i,
+          url: './main_frame.html',
+          pageParam:{
+            wareTypeIndex: i
+          }
+    })
+  }
+
   api.openFrameGroup ({
-      name: 'group1',
-      background: '#fff', // 去掉就是透明
-      scrollEnabled: false, // 每项是否可以滑动
+      name: 'main_frame',
+      // background: '#fff', // 去掉就是透明
+      scrollEnabled: true, // 每项是否可以滑动
       rect: {
            x: 0,
-           y: 0,
-           w: 'auto',
-           h: 'auto'
+           y: navH + headerH,
+           w: 'auto',  // 到屏幕右下角
+           h: 'auto' // 到屏幕右下角
       },
-      index: 1,
-      frames: [{
-          name: 'frame1',
-          url: 'frame1.html',
-          bgColor: '#fff'
-      },{
-          name: 'frame2',
-          url: 'frame2.html',
-          bgColor: '#fff'
-      }]
+      index: 0,
+      preload: 1,
+      frames: frames
   }, function(ret, err){
+      fnSetNavMenuSelected(ret.index)
       if( ret ){
-           alert( JSON.stringify( ret ) );
+          //  alert( JSON.stringify( ret ) );
       }else{
-           alert( JSON.stringify( err ) );
+          //  alert( JSON.stringify( err ) );
       }
   });
+}
 
-};
+// click切换高亮nav > item
+function fnClickChangeNav(index){
+  fnSetNavMenuSelected(index)
+  api.setFrameGroupIndex({
+    name: 'main_frame',
+    index: index,
+    scroll: true
+  })
+}
+
+// 滑动navv更换高亮item
+function fnSetNavMenuSelected(index){
+  for(var i=0; i<menus.length; i++){
+    if(i == index){
+      $api.addCls(menus[i], 'selected');
+    } else {
+      $api.removeCls(menus[i], 'selected');
+    }
+  }
+}
+
+// 点击打开login页面
+function fnOpenLoginWin(){
+  var userinfo = $api.getStorage('userinfo');
+  if(userinfo && userinfo.id){
+    api.openWin({
+        name: 'personalcenter',
+        url: './personalcenter.html',
+        pageParam: {
+            name: 'test'
+        }
+    });
+
+    ;
+  }else{
+    api.openWin({
+      name: 'login',
+      url: './login.html',
+      pageParam: {
+          name: 'test'
+      }
+  });
+  }
+}
+
+// 初始化一些监听事件
+function initEventListener(){
+api.addEventListener({
+    name: 'changeCity'
+}, function(ret, err){
+    if( ret ){
+      var cityText = $api.byId('cityText')
+      $api.html(cityText,ret.value.city.name );
+      // console.log(ret.value.city.name);
+      // cityText.innerHTML = ret.value.city.name
+        //  alert( JSON.stringify( ret ) );
+    }else{
+         alert( JSON.stringify( err ) );
+    }
+});
+
+
+  // 在此页面监听返回按钮，返回即关闭当前应用
+  api.addEventListener({
+      name: 'keyback'
+  }, function(ret, err){
+    api.confirm({
+        title: '提示',
+        msg: '要退出app吗',
+        buttons: ['确定', '取消']
+    }, function(ret, err){
+        if( ret.buttonIndex == 1 ){
+          api.closeWidget();
+        }else{
+             ;
+        }
+    });
+  });
+}
+function fnOpenCity(){
+  api.openFrame({
+      name: 'cityselector_frame',
+      url: './cityselector_frame.html',
+      bgColor: 'rgba(0,0,0,0.7)',
+      rect: {
+          x: 0,
+          y: headerH,
+          w: 'auto',
+          h: 'auto'
+      },
+      pageParam: {
+          name: 'test'
+      },
+      bounces: true,
+      vScrollBarEnabled: true,
+      hScrollBarEnabled: true
+  });
+
+}
 </script>
 
 </html>

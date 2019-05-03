@@ -14,7 +14,7 @@
         height: 61px;
         border-bottom: 1px solid #ddd;
     }
-    
+
     .option .title {
         position: relative;
         width: 100%;
@@ -26,7 +26,7 @@
         color: #444;
         text-align: left;
     }
-    
+
     .option .arrow-panel {
         position: absolute;
         top: 0;
@@ -38,7 +38,7 @@
         background-size: 16px 24px;
         background-position: right center;
     }
-    
+
     .option .arrow-panel .text {
         box-sizing: border-box;
         width: auto;
@@ -49,7 +49,7 @@
         color: #888;
         text-align: left;
     }
-    
+
     .button {
         width: auto;
         height: 50px;
@@ -63,7 +63,7 @@
         text-align: center;
         border-radius: 8px;
     }
-    
+
     .highlight {
         opacity: 0.7;
     }
@@ -84,7 +84,7 @@
                 <div class="text"></div>
             </div>
         </div>
-        <div class="button">退出登录</div>
+        <div class="button" tapmode onclick="fnLogOut()">退出登录</div>
     </section>
 </body>
 <script type="text/javascript" src="../script/api.js"></script>
@@ -92,6 +92,40 @@
 apiready = function() {
 
 };
+
+setFramePosition(){
+  // 分类栏要距手机屏幕顶部的距离
+  var header = $api.byId('header');
+  var footer = $api.byId('footer');
+  // 把状态栏的高度以padding-top的形式加在header上
+  $api.fixStatusBar(header);
+  var headerH = $api.offset(header).h;
+  var footerH = $api.offset(footer).h
+api.openFrame({
+    name: 'setting_frame',
+    url: './setting_frame.html',
+    rect: {
+        x: 0,
+        y: headerH,
+        w: 'auto',
+        h: 'auto'
+    },
+    pageParam: {
+        name: 'test'
+    },
+    bounces: true,
+    bgColor: 'rgba(0,0,0,0)',
+    vScrollBarEnabled: true,
+    hScrollBarEnabled: true
+});
+
+}
+
+// 退出登录
+function fnLogOut(){
+  $api.rmStorage('userinfo');
+
+}
 </script>
 
 </html>
