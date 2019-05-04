@@ -220,6 +220,8 @@
         <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
             <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}"
             src="../image/default_rect.png">
+            <!-- <img class="thumbnail" data-url="{{=value.thumbnail.url}}"
+            src="{{=value.thumbnail.url}}"> -->
             <div class="info">
                 <span class="price">RMB{{=value.price}}</span>
                 <span class="unit">/{{=value.unit}}</span>
@@ -239,6 +241,9 @@
         <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
             <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}"
             src="../image/default_square.png">
+
+            <!-- <img class="thumbnail" data-url="{{=value.thumbnail.url}}"
+            src="{{=value.thumbnail.url}}"> -->
             <div class="info">
                 <div class="name">{{=value.name}}</div>
                 <div class="description">{{=value.description}}</div>
@@ -284,8 +289,6 @@
             if (ret) {
                 if (ret.status) {
                     banner.src = ret.url
-                    console.log(banner.src)
-                    console.log(ret.url);
                 }
             } else {
                 alert(JSON.stringify(err));
@@ -300,7 +303,10 @@
                 url: urlAttr
             }, function(ret, err) {
                 if (ret) {
-                        imgEle.src = ret.url
+                  imgEle.src = ''
+                  var url = ret.url
+                        imgEle.src = url
+                        // alert(imgEle.src)
                         $api.attr(imgEle, 'data-url', '');
                         $api.removeAttr(imgEle, 'onload');
                 } else {
@@ -341,6 +347,7 @@
 
     // 请求商品列表
     function getWareList() {
+      console.log(wareTypeList[api.pageParam.wareTypeIndex].id)
         var params = {
             fields: {},
             where: {
