@@ -129,7 +129,7 @@
 <body>
     <header>
         <div class="icon-panel" tapmode onclick="api.closeWin()">
-            <div id="icon" class="icon"></div>
+            <div id="icon" class="icon"  tapmode onclick="api.closeWin()"></div>
         </div>
         <div id="username" class="username">broad</div>
         <div class="account-info">积分：0|余额：￥0</div>
@@ -156,7 +156,7 @@
                 <div class="text">查看我的优惠卷</div>
             </div>
         </div>
-        <div class="option">
+        <div class="option" tapmode onclick="openAddressWin()">
             <div class="icon icon-address"></div>
             <div class="title">收货地址</div>
             <div class="arrow-panel">
@@ -170,6 +170,16 @@
 apiready = function() {
 
 };
+function openAddressWin(){
+  api.openWin({
+      name: 'address',
+      url: './address.html',
+      pageParam: {
+          name: 'test'
+      }
+  });
+
+}
 </script>
 
 </html>

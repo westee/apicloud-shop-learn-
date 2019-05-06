@@ -271,6 +271,8 @@
 <script type="text/javascript">
     var currentCity
     var wareTypeList
+    var skip = 0
+    var limit = 5
 
     apiready = function() {
         init()
@@ -278,8 +280,22 @@
         getWareList()
             // 获得banner图
         updateBanner()
+        initSetRefresh()
     };
+      function initSetRefresh(){
+        api.setRefreshHeaderInfo({
+            visible: true,
+            loadingImg: 'widget://image/refresh.png',
+            bgColor: '#ccc',
+            textColor: '#fff',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function(ret, err){
+            getWareList()
+        });
 
+      }
     // 获得banner图
     function updateBanner() {
         var banner = $api.byId('banner')
@@ -322,6 +338,20 @@
     }
     //
     function initEventlistener() {
+      // 上拉加载更多
+      api.addEventListener({
+          name:'scrolltobottom',
+          extra:{
+              threshold:100
+          }
+      }, function(ret, err){
+          if( ret ){
+            getWareList(true)
+          }else{
+              alert( JSON.stringify( err ) );
+          }
+      });
+
         api.addEventListener({
             name: 'changeCity'
         }, function(ret, err) {
@@ -346,8 +376,12 @@
     }
 
     // 请求商品列表
-    function getWareList() {
-      console.log(wareTypeList[api.pageParam.wareTypeIndex].id)
+    function getWareList(loadmore) {
+      if(loadmore){
+        skip += limit
+      } else {
+        skip = 0
+      }
         var params = {
             fields: {},
             where: {
@@ -356,8 +390,8 @@
                 // wareTypeId: "56c80da883af652643474b6b",
                 wareTypeId: wareTypeList[api.pageParam.wareTypeIndex].id
             },
-            skip: 0,
-            limit: 5
+            skip: skip,
+            limit: limit
         }
         params = $api.jsonToStr(params);
 
@@ -370,23 +404,27 @@
             }
         }, function(ret, err) {
             if (ret) {
-                // alert(JSON.stringify(ret));
-                updateWareList(ret)
+                updateWareList(ret, loadmore);
+                api.refreshHeaderLoadDone();
             } else {
                 alert(JSON.stringify(err));
             }
         });
     }
     // 更新商品列表
-    function updateWareList(wareData) {
+    function updateWareList(wareData, loadmore) {
         var list = $api.byId('list');
         // 1. 编译模板函数
         var tempFn = doT.template($api.byId('template').innerHTML);
         // 2. 多次使用模板函数
         var resultText = tempFn(wareData);
-        $api.html(list, resultText);
-        // console.log(resultText)
-        // console.log(Array.prototype.slice.call(resultText));
+
+        // 是上拉加载
+        if(loadmore){
+          $api.append(list, resultText);
+        } else {
+          $api.html(list, resultText);
+        }
     }
 </script>
 

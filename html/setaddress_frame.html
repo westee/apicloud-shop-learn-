@@ -16,14 +16,14 @@
     body {
         background-color: #eee;
     }
-    
+
     header {
         width: 100%;
         height: 60px;
         margin-bottom: 1px;
         background-color: #fff;
     }
-    
+
     header .select {
         position: absolute;
         width: 16px;
@@ -35,11 +35,11 @@
         background-position: center center;
         background-repeat: no-repeat;
     }
-    
+
     header .select-on {
         background-image: url(../image/select_on.png);
     }
-    
+
     header .text {
         box-sizing: border-box;
         width: 100%;
@@ -50,12 +50,12 @@
         color: #444;
         text-align: left;
     }
-    
+
     section {
         height: auto;
         width: 100%;
     }
-    
+
     section .option {
         position: relative;
         display: -webkit-box;
@@ -72,12 +72,12 @@
         margin-bottom: 1px;
         background-color: #fff;
     }
-    
+
     section .option .name {
         width: auto;
         line-height: 60px;
     }
-    
+
     section .option .input {
         -webkit-box-flex: 1;
         -webkit-flex: 1;
@@ -86,7 +86,7 @@
         box-sizing: border-box;
         padding-top: 22px;
     }
-    
+
     section .option .input input {
         font-size: 14px;
         width: 100%;
@@ -95,7 +95,7 @@
         vertical-align: top;
         border: none;
     }
-    
+
     section .option .select {
         -webkit-box-flex: 1;
         -webkit-flex: 1;
@@ -103,7 +103,7 @@
         height: 60px;
         line-height: 60px;
     }
-    
+
     section .option .arrow-right-highlight {
         position: absolute;
         right: 16px;
@@ -116,7 +116,7 @@
         background-size: 8px 16px;
         background-position: right center;
     }
-    
+
     section .option .multi-select {
         box-sizing: border-box;
         padding-top: 11px;
@@ -125,7 +125,7 @@
         flex: 1;
         height: 60px;
     }
-    
+
     section .option .multi-select .item {
         display: inline-block;
         width: auto;
@@ -138,18 +138,18 @@
         border-radius: 19px;
         border: 1px solid #888;
     }
-    
+
     section .option .multi-select .selected {
         color: #e3007f;
         border: 1px solid #e3007f;
     }
-    
+
     footer {
         margin-top: 16px;
         width: 100%;
         height: 50px;
     }
-    
+
     footer .btn {
         margin-left: 100px;
         margin-right: 100px;
@@ -161,7 +161,7 @@
         color: #fff;
         line-height: 44px;
     }
-    
+
     .highlight {
         opacity: 0.7;
     }
@@ -186,7 +186,7 @@
                 <input id="mobile" type="text" placeholder="点击输入收货人手机号码">
             </div>
         </div>
-        <div class="option">
+        <div class="option" tapmode onclick="openAreaSelector()">
             <div class="name">所在区域：</div>
             <div id="area" class="select">点击选择收货所在的区域</div>
             <div class="arrow-right-highlight"></div>
@@ -221,6 +221,62 @@
 apiready = function() {
 
 };
+function openAreaSelector(){
+  var UIActionSelector = api.require("UIActionSelector");
+  UIActionSelector.open({
+      datas: 'widget://res/city.json',
+      layout: {
+          row: 5,
+          col: 3,
+          height: 30,
+          size: 12,
+          sizeActive: 14,
+          rowSpacing: 5,
+          colSpacing: 10,
+          maskBg: 'rgba(0,0,0,0.2)',
+          bg: '#fff',
+          color: '#888',
+          colorActive: '#f00',
+          colorSelected: '#f00'
+      },
+      animation: true,
+      cancel: {
+          text: '取消',
+          size: 12,
+          w: 90,
+          h: 35,
+          bg: '#fff',
+          bgActive: '#ccc',
+          color: '#888',
+          colorActive: '#fff'
+      },
+      ok: {
+          text: '确定',
+          size: 12,
+          w: 90,
+          h: 35,
+          bg: '#fff',
+          bgActive: '#ccc',
+          color: '#888',
+          colorActive: '#fff'
+      },
+      title: {
+          text: '请选择',
+          size: 12,
+          h: 44,
+          bg: '#eee',
+          color: '#888'
+      },
+      fixedOn: api.frameName
+  }, function(ret, err) {
+      if (ret) {
+          alert(JSON.stringify(ret));
+      } else {
+          alert(JSON.stringify(err));
+      }
+  });
+
+}
 </script>
 
 </html>
