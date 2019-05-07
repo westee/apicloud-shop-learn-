@@ -191,7 +191,7 @@
             <div id="area" class="select">点击选择收货所在的区域</div>
             <div class="arrow-right-highlight"></div>
         </div>
-        <div class="option">
+        <div class="option" tapmode onclick="openSetAddressDetailWin()">
             <div class="name">具体地址：</div>
             <div id="focus" class="select">点击选择具体的小区或写字楼</div>
             <div class="arrow-right-highlight"></div>
@@ -273,6 +273,17 @@ function openAreaSelector(){
           alert(JSON.stringify(ret));
       } else {
           alert(JSON.stringify(err));
+      }
+  });
+
+}
+
+function openSetAddressDetailWin(){
+  api.openWin({
+      name: 'setaddressdetail',
+      url: './setaddressdetail.html',
+      pageParam: {
+          name: 'test'
       }
   });
 
