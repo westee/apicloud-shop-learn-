@@ -218,8 +218,7 @@
     {{~it:value:index}} {{?value.showType == 0}}
     <div class="ware ware-0">
         <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
-            <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}"
-            src="../image/default_rect.png">
+            <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}" src="../image/default_rect.png">
             <!-- <img class="thumbnail" data-url="{{=value.thumbnail.url}}"
             src="{{=value.thumbnail.url}}"> -->
             <div class="info">
@@ -227,24 +226,23 @@
                 <span class="unit">/{{=value.unit}}</span>
                 <span class="origin-price">&nbsp;超市:<del>{{=value.originPrice}}元</del></span>
             </div>
-            <div class="control">
-                <div class="panel">
-                    <img class="minus" src="../image/minus.png">
-                    <div class="count">0</div>
+            <div class="control" tapmode onclick="event.stopPropagation()">
+                <div class="panel" id="panel_{{=value.id}}">
+                    <img class="minus" src="../image/minus.png" tapmode onclick="fnMinus('{{=value.id}}')">
+                    <div class="count" id="count_{{=value.id}}">0</div>
                 </div>
-                <img class="add" src="../image/add.png">
+                <img class="add" src="../image/add.png" tapmode onclick="fnAdd('{{=value.id}}')">
             </div>
         </div>
     </div>
     {{??}}
     <div class="ware ware-1">
         <div class="content" tabmode onclick="fnOpenWareWin('{{=value.id}}')">
-            <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}"
-            src="../image/default_square.png">
+            <img class="thumbnail" onload="imgLoad(this)" data-url="{{=value.thumbnail.url}}" src="../image/default_square.png">
 
             <!-- <img class="thumbnail" data-url="{{=value.thumbnail.url}}"
             src="{{=value.thumbnail.url}}"> -->
-            <div class="info">
+            <div class="info" tapmode onclick="event.stopPropagation()">
                 <div class="name">{{=value.name}}</div>
                 <div class="description">{{=value.description}}</div>
                 <div class="price-tag">
@@ -255,12 +253,12 @@
                     <del>{{=value.originPrice}}元</del>
                 </div>
             </div>
-            <div class="control">
-                <div class="panel">
-                    <img class="minus" src="../image/minus.png">
-                    <div class="count">0</div>
+            <div class="control" tapmode onclick="event.stopPropagation()">
+                <div class="panel" id="panel_{{=value.id}}">
+                    <img class="minus" src="../image/minus.png" tapmode onclick="fnMinus('{{=value.id}}')">
+                    <div class="count" id="count_{{=value.id}}">0</div>
                 </div>
-                <img class="add" src="../image/add.png ">
+                <img class="add"  src="../image/add.png " tapmode onclick="fnAdd('{{=value.id}}')">
             </div>
         </div>
     </div>
@@ -282,7 +280,8 @@
         updateBanner()
         initSetRefresh()
     };
-      function initSetRefresh(){
+
+    function initSetRefresh() {
         api.setRefreshHeaderInfo({
             visible: true,
             loadingImg: 'widget://image/refresh.png',
@@ -291,11 +290,11 @@
             textDown: '下拉刷新...',
             textUp: '松开刷新...',
             showTime: true
-        }, function(ret, err){
+        }, function(ret, err) {
             getWareList()
         });
 
-      }
+    }
     // 获得banner图
     function updateBanner() {
         var banner = $api.byId('banner')
@@ -319,12 +318,12 @@
                 url: urlAttr
             }, function(ret, err) {
                 if (ret) {
-                  imgEle.src = ''
-                  var url = ret.url
-                        imgEle.src = url
+                    imgEle.src = ''
+                    var url = ret.url
+                    imgEle.src = url
                         // alert(imgEle.src)
-                        $api.attr(imgEle, 'data-url', '');
-                        $api.removeAttr(imgEle, 'onload');
+                    $api.attr(imgEle, 'data-url', '');
+                    $api.removeAttr(imgEle, 'onload');
                 } else {
                     alert(JSON.stringify(err));
                 }
@@ -338,19 +337,19 @@
     }
     //
     function initEventlistener() {
-      // 上拉加载更多
-      api.addEventListener({
-          name:'scrolltobottom',
-          extra:{
-              threshold:100
-          }
-      }, function(ret, err){
-          if( ret ){
-            getWareList(true)
-          }else{
-              alert( JSON.stringify( err ) );
-          }
-      });
+        // 上拉加载更多
+        api.addEventListener({
+            name: 'scrolltobottom',
+            extra: {
+                threshold: 100
+            }
+        }, function(ret, err) {
+            if (ret) {
+                getWareList(true)
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
 
         api.addEventListener({
             name: 'changeCity'
@@ -377,11 +376,11 @@
 
     // 请求商品列表
     function getWareList(loadmore) {
-      if(loadmore){
-        skip += limit
-      } else {
-        skip = 0
-      }
+        if (loadmore) {
+            skip += limit
+        } else {
+            skip = 0
+        }
         var params = {
             fields: {},
             where: {
@@ -420,11 +419,28 @@
         var resultText = tempFn(wareData);
 
         // 是上拉加载
-        if(loadmore){
-          $api.append(list, resultText);
+        if (loadmore) {
+            $api.append(list, resultText);
         } else {
-          $api.html(list, resultText);
+            $api.html(list, resultText);
         }
+    }
+
+    function fnAdd(ware_id) {
+        console.log(111);
+        var count = $api.byId('count_' + ware_id)
+        var panel = $api.byId('panel_' + ware_id)
+        var countNumber = parseInt(count.innerHTML)
+        console.log(countNumber);
+        countNumber += 1
+        count.innerHTML = countNumber
+        console.log(count.innerHTML)
+        if (countNumber > 0) {
+            panel.style.display = 'block'
+        } else {
+            panel.style.display = 'none'
+        }
+        console.log(panel.style.display)
     }
 </script>
 

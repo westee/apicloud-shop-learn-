@@ -140,11 +140,13 @@
     </nav>
 </body>
 <script type="text/javascript" src="../script/api.js"></script>
+<script src="../script/db.js" charset="utf-8"></script>
 <script type="text/javascript">
 var menus, headerH, navH
 apiready = function() {
   // 监听返回按钮关闭应用
   initEventListener()
+  initDataBase()
 
   // 分类栏要距手机屏幕顶部的距离
   var header = $api.byId('header');
@@ -157,6 +159,10 @@ apiready = function() {
 
   openFramesGroup()
 };
+
+function initDataBase(){
+  $db.open()
+}
 
 function openFramesGroup(){
   var currentCity = $api.getStorage('currentCity');
@@ -199,6 +205,28 @@ function openFramesGroup(){
           //  alert( JSON.stringify( err ) );
       }
   });
+
+  api.openFrame({
+      name: 'minicart_frame',
+      url: './minicart_frame.html',
+      rect: {
+          x: 0,
+          y: api.winHeight - 55,
+          w: 150,
+          h: 34
+      },
+      pageParam: {
+          name: 'test'
+      },
+      bounces: false,
+      bgColor: 'rgba(0,0,0,0)',
+      vScrollBarEnabled: true,
+      hScrollBarEnabled: true
+  });
+  api.bringFrameToFront({
+      from: 'minicart_frame'
+      });
+
 }
 
 // click切换高亮nav > item
